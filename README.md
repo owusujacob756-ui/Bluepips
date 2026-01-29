@@ -41,13 +41,40 @@ A professional forex trading platform that uses AI algorithms to generate high-c
 
 3. **Set up environment variables**
    ```bash
-   cp .env.local.example .env.local
+   cp .env.example .env.local
    ```
    
-   Update `.env.local` with your database configuration:
+   Update `.env.local` with your database configuration and API keys:
    ```
    DATABASE_URL="postgresql://username:password@localhost:5432/bluepips_db"
+   OPENAI_API_KEY=
+   NEWS_API_KEY=
+   AI_PROVIDER=openai
+   NEWS_PROVIDER=newsapi
+   NEWS_WEBHOOK_URL=
+   AI_MAX_CONCURRENT=2
+   JOBS_SYNC_INTERVAL_MS=600000
    ```
+   - **NOTE**: The app runs in a safe stub mode when `DATABASE_URL` or API keys are missing. This allows building and running locally without requiring external services.
+   - **Optional envs**: `AI_PROVIDER` (openai|anthropic|gemini), `NEWS_PROVIDER` (newsapi|google).  Use `NEWS_WEBHOOK_URL` to receive high-impact news (optional).  `AI_MAX_CONCURRENT` controls concurrency against AI providers; `JOBS_SYNC_INTERVAL_MS` controls background job frequency.
+
+7. **Background sync (news / price data)**
+   There are two sync options:
+
+   - One-off sync: `npm run sync:news` — runs the news sync once (useful for seeding)
+   - Daemon: `npm run jobs:start` — starts a small background job runner (syncs every 10 minutes)
+
+   The scripts fetch news for configured forex pairs and save them to the `news_items` table for analysis.
+
+   You can also run a local Postgres instance using Docker Compose:
+
+   ```bash
+   docker compose up -d
+   # then run migrations
+   psql postgres://bluepips:secret@localhost:5432/bluepips_dev -f database/schema.sql
+   ```
+
+   Security best practices are documented in `SECURITY.md`.
 
 4. **Set up the database**
    ```bash

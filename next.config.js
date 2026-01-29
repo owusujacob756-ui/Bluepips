@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
+  // Keep configuration empty — appDir is enabled by default in Next 14
 }
 
 module.exports = nextConfig

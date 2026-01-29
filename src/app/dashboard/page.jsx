@@ -68,6 +68,30 @@ export default function DashboardPage() {
     refetchInterval: 60000,
   });
 
+  const fetchLatestAnalyses = async () => {
+    const response = await fetch('/api/analysis/latest');
+    if (!response.ok) throw new Error('Failed to fetch analyses');
+    return response.json();
+  };
+
+  const fetchNews = async () => {
+    const response = await fetch('/api/news/recent');
+    if (!response.ok) throw new Error('Failed to fetch news');
+    return response.json();
+  };
+
+  const { data: analyses } = useQuery({
+    queryKey: ['latestAnalyses'],
+    queryFn: fetchLatestAnalyses,
+    refetchInterval: 60000,
+  });
+
+  const { data: news } = useQuery({
+    queryKey: ['recentNews'],
+    queryFn: fetchNews,
+    refetchInterval: 60000,
+  });
+
   return (
     <div className="min-h-screen bg-[#0B1120] p-6">
       <div className="max-w-7xl mx-auto">
@@ -242,6 +266,41 @@ export default function DashboardPage() {
               <Activity className="w-5 h-5 text-blue-400" />
               Market Overview
             </h2>
+
+            <div className="mb-4">
+              <h3 className="text-sm text-gray-400 mb-2">AI Analysis</h3>
+              <div className="grid grid-cols-1 gap-2">
+                {analyses?.analyses?.slice(0,5).map((a) => (
+                  <div key={a.id} className="bg-[#1a2332] border border-gray-700 rounded-lg p-3 flex items-center justify-between">
+                    <div>
+                      <div className="text-white font-semibold">{a.symbol}</div>
+                      <div className="text-xs text-gray-400">{a.details?.tech?.summary || a.details?.ai?.summary || 'AI summary not available'}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className={`text-sm font-bold ${a.overall_recommendation === 'buy' ? 'text-green-400' : a.overall_recommendation === 'sell' ? 'text-red-400' : 'text-gray-400'}`}>
+                        {a.overall_recommendation ? a.overall_recommendation.toUpperCase() : 'HOLD'}
+                      </div>
+                      <div className="text-xs text-gray-400">{a.confidence ? a.confidence + '%' : ''}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <h3 className="text-sm text-gray-400 mb-2">Latest News</h3>
+              <div className="space-y-2 max-h-48 overflow-auto">
+                {news?.news?.slice(0,5).map((n) => (
+                  <a key={n.id} href={n.url || '#'} className="block bg-[#1a2332] border border-gray-700 rounded-lg p-3 hover:border-blue-500/50 transition-all" target="_blank" rel="noreferrer">
+                    <div className="text-white text-sm font-semibold">{n.title}</div>
+                    <div className="text-xs text-gray-400">{n.source} • {n.published_at ? new Date(n.published_at).toLocaleString() : ''}</div>
+                  </a>
+                ))}
+                {(!news || news.news?.length === 0) && (
+                  <div className="text-gray-400 text-sm">No recent news available.</div>
+                )}
+              </div>
+            </div>
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {pairs?.pairs?.slice(0, 10).map((pair) => {

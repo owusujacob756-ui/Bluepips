@@ -46,6 +46,70 @@ CREATE TABLE signals (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Technical analysis table
+CREATE TABLE technical_analysis (
+    id SERIAL PRIMARY KEY,
+    pair_id INTEGER REFERENCES forex_pairs(id),
+    timeframe VARCHAR(10),
+    indicators JSONB,
+    ai_summary TEXT,
+    recommendation VARCHAR(10) CHECK (recommendation IN ('buy','sell','hold')),
+    confidence NUMERIC(5,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Fundamental analysis table
+CREATE TABLE fundamental_analysis (
+    id SERIAL PRIMARY KEY,
+    pair_id INTEGER REFERENCES forex_pairs(id),
+    news JSONB,
+    sentiment VARCHAR(10) CHECK (sentiment IN ('bullish','bearish','neutral')),
+    impact VARCHAR(10) CHECK (impact IN ('high','medium','low')),
+    ai_summary TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Combined analysis table
+CREATE TABLE combined_analysis (
+    id SERIAL PRIMARY KEY,
+    pair_id INTEGER REFERENCES forex_pairs(id),
+    technical_id INTEGER REFERENCES technical_analysis(id),
+    fundamental_id INTEGER REFERENCES fundamental_analysis(id),
+    overall_recommendation VARCHAR(10) CHECK (overall_recommendation IN ('buy','sell','hold')),
+    confidence NUMERIC(5,2),
+    details JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Unified analysis table (merged technical + fundamental + combined)
+CREATE TABLE analysis (
+    id SERIAL PRIMARY KEY,
+    pair_id INTEGER REFERENCES forex_pairs(id),
+    timeframe VARCHAR(10),
+    technical JSONB,
+    fundamental JSONB,
+    overall_recommendation VARCHAR(10) CHECK (overall_recommendation IN ('buy','sell','hold')),
+    confidence NUMERIC(5,2),
+    details JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- News items table (store individual articles for auditing / re-analysis)
+CREATE TABLE news_items (
+    id SERIAL PRIMARY KEY,
+    pair_id INTEGER REFERENCES forex_pairs(id),
+    source VARCHAR(255),
+    title TEXT NOT NULL,
+    description TEXT,
+    url TEXT,
+    published_at TIMESTAMP,
+    fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes to speed analysis queries
+CREATE INDEX idx_analysis_pair_time ON analysis(pair_id, timeframe, created_at DESC);
+CREATE INDEX idx_news_items_pair_time ON news_items(pair_id, published_at DESC);
+
 -- Trades table
 CREATE TABLE trades (
     id SERIAL PRIMARY KEY,
