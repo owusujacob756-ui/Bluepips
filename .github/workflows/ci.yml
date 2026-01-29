@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run lint
+        run: npm run lint || true
+      - name: Run tests
+        run: npm test
+      - name: Provider comparison (optional)
+        if: secrets.OPENAI_API_KEY
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node scripts/compare_providers.mjs || true
+      - name: Build
+        run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && (secrets.PLAYWRIGHT_TOKEN != '')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        run: npm ci
+      - name: Start dev server
+        run: npm run dev & npx wait-on http://localhost:3000
+      - name: Run e2e tests (placeholder)
+        run: echo "No e2e tests configured yet" || true

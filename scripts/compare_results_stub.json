@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "providers": ["openai", "anthropic", "gemini"],
+    "pairs": ["EUR/USD", "USD/JPY", "GBP/USD"],
+    "timeframes": ["1H", "4H", "1D"]
+  },
+  "results": [
+    {
+      "provider": "openai",
+      "pair": "EUR/USD",
+      "timeframe": "1H",
+      "tech": { "recommendation": "hold", "confidence": 50, "summary": "OpenAI key not set — returning a neutral stub summary." },
+      "fund": { "sentiment": "neutral", "impact": "medium", "confidence": 50, "summary": "OpenAI key not set — returning a neutral stub summary." }
+    },
+    {
+      "provider": "anthropic",
+      "pair": "EUR/USD",
+      "timeframe": "1H",
+      "tech": { "recommendation": "hold", "confidence": 50, "summary": "Anthropic key not set — returning neutral stub." },
+      "fund": { "sentiment": "neutral", "impact": "medium", "confidence": 50, "summary": "Anthropic key not set — returning neutral stub." }
+    },
+    {
+      "provider": "gemini",
+      "pair": "EUR/USD",
+      "timeframe": "1H",
+      "tech": { "recommendation": "hold", "confidence": 50, "summary": "Gemini key not set — returning neutral stub." },
+      "fund": { "sentiment": "neutral", "impact": "medium", "confidence": 50, "summary": "Gemini key not set — returning neutral stub." }
+    }
+  ]
+}
